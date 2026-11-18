@@ -1,0 +1,28 @@
+@import '../../index.css';
+
+/* ShopHere accent: a deep teal, paired with the shared neutral tokens */
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+}
+
+@layer base {
+  :root {
+    --accent: #0f766e;
+    --accent-hover: #115e59;
+    --accent-fg: #ffffff;
+    --accent-soft: #f0fdfa;
+    --accent-text: #0f766e;
+  }
+
+  :root.dark {
+    --accent: #2dd4bf;
+    --accent-hover: #5eead4;
+    --accent-fg: #042f2e;
+    --accent-soft: rgb(45 212 191 / 0.1);
+    --accent-text: #5eead4;
+  }
+}

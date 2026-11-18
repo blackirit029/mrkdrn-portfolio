@@ -1,0 +1,63 @@
+@import '../../index.css';
+
+/*
+ * SpendHere tokens.
+ * Accent: blue. Category colors: the validated 8-slot categorical palette, assigned
+ * to categories in fixed order (checked with the dataviz validator against #ffffff
+ * and #18181b). Status colors are reserved for budget state and always ship with an
+ * icon + label.
+ */
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--good);
+  --color-warning: var(--warning);
+  --color-critical: var(--critical);
+  --color-good-text: var(--good-text);
+  --color-bad-text: var(--bad-text);
+}
+
+@layer base {
+  :root {
+    --accent: #256abf;
+    --accent-hover: #1c5cab;
+    --accent-fg: #ffffff;
+    --accent-soft: #eef5fd;
+
+    --good: #0ca30c;
+    --warning: #fab219;
+    --critical: #d03b3b;
+    --good-text: #006300;
+    --bad-text: #c23434;
+
+    --cat-1: #2a78d6;
+    --cat-2: #eb6834;
+    --cat-3: #1baf7a;
+    --cat-4: #eda100;
+    --cat-5: #e87ba4;
+    --cat-6: #008300;
+    --cat-7: #6250d6;
+    --cat-8: #e34948;
+  }
+
+  :root.dark {
+    --accent: #3987e5;
+    --accent-hover: #5598e7;
+    --accent-fg: #0b0b0b;
+    --accent-soft: rgb(57 135 229 / 0.12);
+
+    --good-text: #2bc42b;
+    --bad-text: #f07a7a;
+
+    --cat-1: #3987e5;
+    --cat-2: #d95926;
+    --cat-3: #199e70;
+    --cat-4: #c98500;
+    --cat-5: #d55181;
+    --cat-6: #0ca30c;
+    --cat-7: #9085e9;
+    --cat-8: #e66767;
+  }
+}
