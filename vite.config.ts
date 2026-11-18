@@ -6,7 +6,9 @@ import { defineConfig } from 'vite'
 const page = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // GitHub Pages serves the site from /<repo>/; dev keeps the root
+  base: command === 'build' ? '/mrkdrn-portfolio/' : '/',
   plugins: [react(), tailwindcss()],
   build: {
     rollupOptions: {
@@ -19,4 +21,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))

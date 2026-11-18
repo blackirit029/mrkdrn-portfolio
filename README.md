@@ -40,6 +40,13 @@ Each mini project is a separate page in the same Vite build. It has an HTML entr
 
 ShopHere's product photos are from [Unsplash](https://unsplash.com) (free to use under the Unsplash License) and are stored in `public/shophere/`.
 
+## Deployment
+
+The site is published to GitHub Pages at https://blackirit029.github.io/mrkdrn-portfolio/ by the workflow in `.github/workflows/deploy.yml`, which builds and deploys on every push to `main` (it can also be run manually from the Actions tab).
+
+- One-time setup: in the repo's **Settings → Pages**, set **Source** to **GitHub Actions**.
+- Production builds use the base path `/mrkdrn-portfolio/` (see `vite.config.ts`). For links or images written in code, use `withBase()` from `src/lib/withBase.ts` instead of a path that starts with `/`, so they work both locally and on Pages.
+
 ## Customizing
 
 All placeholder content lives in `src/data/`. Change your name, role, links and email in `site.ts`, your projects in `projects.ts`, and your experience and education in `resume.ts`, and your skills in `skills.ts`.

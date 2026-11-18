@@ -1,9 +1,10 @@
+import { withBase } from '../../lib/withBase'
 import type { Category, Product } from './types'
 
 // Photos from Unsplash (free to use), stored in public/shophere
-const img = (name: string) => `/shophere/products/${name}.jpg`
+const img = (name: string) => withBase(`shophere/products/${name}.jpg`)
 
-export const heroImage = '/shophere/hero.jpg'
+export const heroImage = withBase('shophere/hero.jpg')
 
 export const categories: Category[] = [
   { id: 'electronics', name: 'Electronics', image: img('headphones') },

@@ -1,3 +1,4 @@
+import { withBase } from '../../../lib/withBase'
 import type { FormEvent } from 'react'
 import ThemeToggle from '../../../components/ui/ThemeToggle'
 import { useTheme } from '../../../hooks/useTheme'
@@ -111,7 +112,7 @@ function Header({
             </button>
           ) : (
             <a
-              href="/#projects"
+              href={withBase('#projects')}
               className="hidden rounded-md px-2 py-1.5 text-sm text-muted transition-colors hover:bg-chip hover:text-fg sm:block"
             >
               <span aria-hidden>← </span>Portfolio

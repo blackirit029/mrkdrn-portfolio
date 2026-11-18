@@ -1,3 +1,4 @@
+import { withBase } from '../../../lib/withBase'
 import ThemeToggle from '../../../components/ui/ThemeToggle'
 import { useTheme } from '../../../hooks/useTheme'
 import { TABS, type Tab } from '../types'
@@ -54,7 +55,7 @@ function Header({ tab, onSelectTab, counts }: HeaderProps) {
 
         <div className="flex items-center justify-end gap-1 sm:col-start-3">
           <a
-            href="/#projects"
+            href={withBase('#projects')}
             className="rounded-md px-2 py-1.5 text-sm text-muted transition-colors hover:bg-chip hover:text-fg"
           >
             <span aria-hidden>← </span>Portfolio
