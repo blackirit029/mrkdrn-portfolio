@@ -21,7 +21,9 @@ function DailySpendingChart({ month, transactions }: DailySpendingChartProps) {
   }, [month, transactions])
 
   const max = Math.max(...days.map((d) => d.total))
-  const ticks = niceTicks(max, 3)
+  const hasData = max > 0
+  // With no spending there is nothing to scale: show only the baseline
+  const ticks = hasData ? niceTicks(max, 3) : [0, 1]
   const top = ticks[ticks.length - 1]
   const today = todayKey()
   const isCurrent = month === currentMonth()
@@ -41,7 +43,7 @@ function DailySpendingChart({ month, transactions }: DailySpendingChartProps) {
       <div className="mt-5 flex gap-2">
         {/* Y axis */}
         <div className="relative h-44 w-12 shrink-0 text-right text-[11px] text-subtle tabular-nums">
-          {ticks.map((tick) => (
+          {(hasData ? ticks : [0]).map((tick) => (
             <span key={tick} className="absolute right-0 translate-y-1/2" style={{ bottom: `${(tick / top) * 100}%` }}>
               {formatAxis(tick, top)}
             </span>
@@ -51,7 +53,10 @@ function DailySpendingChart({ month, transactions }: DailySpendingChartProps) {
         <div className="min-w-0 flex-1">
           {/* Plot */}
           <div className="relative h-44" onPointerLeave={() => setActive(null)}>
-            {ticks.map((tick) => (
+            {!hasData && (
+              <p className="absolute inset-0 grid place-items-center text-sm text-muted">No spending this month yet.</p>
+            )}
+            {(hasData ? ticks : [0]).map((tick) => (
               <div
                 key={tick}
                 className={`absolute inset-x-0 h-px ${tick === 0 ? 'bg-subtle/60' : 'bg-line-soft'}`}

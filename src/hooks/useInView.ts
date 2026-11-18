@@ -9,17 +9,27 @@ export function useInView<T extends Element>() {
     const el = ref.current
     if (!el) return
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true)
-          observer.disconnect()
-        }
-      },
-      { rootMargin: '0px 0px -10% 0px' },
-    )
+    const reveal = () => {
+      setInView(true)
+      observer.disconnect()
+    }
+
+    const observer = new IntersectionObserver(([entry]) => entry.isIntersecting && reveal(), {
+      rootMargin: '0px 0px -10% 0px',
+    })
     observer.observe(el)
-    return () => observer.disconnect()
+
+    // Safety net: anything already on screen at load is revealed right away,
+    // so above-the-fold content never stays hidden if the observer is slow to fire
+    const frame = requestAnimationFrame(() => {
+      const rect = el.getBoundingClientRect()
+      if (rect.top < window.innerHeight && rect.bottom > 0) reveal()
+    })
+
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+    }
   }, [])
 
   return [ref, inView] as const

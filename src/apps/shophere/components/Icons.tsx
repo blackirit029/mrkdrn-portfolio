@@ -37,7 +37,19 @@ export const PlusIcon = ({ className = 'h-4 w-4' }: IconProps) => (
   </svg>
 )
 
-export const TruckIcon = ({ className = 'h-5 w-5' }: IconProps) => (
+export const MinusIcon = ({ className = 'h-4 w-4' }: IconProps) => (
+  <svg className={className} {...base} strokeWidth={2}>
+    <path strokeLinecap="round" d="M5 12h14" />
+  </svg>
+)
+
+export const CheckIcon = ({ className = 'h-4 w-4' }: IconProps) => (
+  <svg className={className} {...base} strokeWidth={2.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12.5l4.5 4.5L19 7.5" />
+  </svg>
+)
+
+export const TruckIcon =({ className = 'h-5 w-5' }: IconProps) => (
   <svg className={className} {...base}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h11v10H3zM14 9h4l3 3.5V16h-7" />
     <circle cx="7" cy="17.5" r="1.7" />

@@ -5,16 +5,21 @@ import BudgetsView from './components/BudgetsView'
 import DashboardView from './components/DashboardView'
 import Header from './components/Header'
 import TransactionsView from './components/TransactionsView'
-import { createSampleTransactions, defaultBudgets } from './data'
-import { TABS, type Budgets, type Month, type Transaction } from './types'
-import { currentMonth, monthOf } from './utils'
+import { budgetFor, createSamplePlans, createSampleTransactions, emptyBudget, loadInitialPlans } from './data'
+import { TABS, type BudgetPlans, type Month, type MonthBudget, type Transaction } from './types'
+import { currentMonth, monthOf, shiftMonth } from './utils'
 
 function App() {
   const [tab, selectTab] = useHashTab(TABS, 'dashboard')
   const [month, setMonth] = useState<Month>(currentMonth)
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>('spendhere:transactions', createSampleTransactions)
-  const [budgets, setBudgets] = useLocalStorage<Budgets>('spendhere:budgets', defaultBudgets)
+  // One budget per month; months without an entry start at 0
+  const [plans, setPlans] = useLocalStorage<BudgetPlans>('spendhere:budgetPlans', loadInitialPlans)
   const [confirmReset, setConfirmReset] = useState(false)
+
+  const budget = budgetFor(plans, month)
+  const updateBudget = (change: (current: MonthBudget) => MonthBudget) =>
+    setPlans((prev) => ({ ...prev, [month]: change(budgetFor(prev, month)) }))
 
   const addTransaction = (transaction: Transaction) => {
     setTransactions((prev) => [transaction, ...prev])
@@ -27,7 +32,7 @@ function App() {
       return
     }
     setTransactions(createSampleTransactions())
-    setBudgets(defaultBudgets)
+    setPlans(createSamplePlans())
     setMonth(currentMonth())
     setConfirmReset(false)
   }
@@ -44,8 +49,9 @@ function App() {
               month={month}
               onMonthChange={setMonth}
               transactions={transactions}
-              budgets={budgets}
+              budget={budget}
               onViewAll={() => selectTab('transactions')}
+              onSetBudget={() => selectTab('budgets')}
             />
           )}
           {tab === 'transactions' && (
@@ -62,9 +68,15 @@ function App() {
               month={month}
               onMonthChange={setMonth}
               transactions={transactions}
-              budgets={budgets}
-              onBudgetChange={(id, limit) => setBudgets((prev) => ({ ...prev, [id]: limit }))}
-              onReset={() => setBudgets(defaultBudgets)}
+              budget={budget}
+              previousBudget={budgetFor(plans, shiftMonth(month, -1))}
+              onTotalChange={(total) => updateBudget((b) => ({ ...b, total }))}
+              onCategoryChange={(id, limit) => updateBudget((b) => ({ ...b, categories: { ...b.categories, [id]: limit } }))}
+              onCopyPrevious={() => {
+                const previous = budgetFor(plans, shiftMonth(month, -1))
+                updateBudget(() => ({ total: previous.total, categories: { ...previous.categories } }))
+              }}
+              onClear={() => updateBudget(emptyBudget)}
             />
           )}
         </div>

@@ -1,4 +1,4 @@
-import type { Budgets, Category, CategoryId, Transaction } from './types'
+import type { BudgetPlans, Budgets, Category, CategoryId, Month, MonthBudget, Transaction } from './types'
 import { daysInMonth, shiftMonth, currentMonth, todayKey } from './utils'
 
 // Fixed order = fixed color slot. Color follows the category everywhere in the app.
@@ -15,7 +15,8 @@ export const categories: Category[] = [
 
 export const categoryById = Object.fromEntries(categories.map((c) => [c.id, c])) as Record<CategoryId, Category>
 
-export const defaultBudgets: Budgets = {
+/** Category limits used for the sample months */
+export const sampleCategoryLimits: Budgets = {
   food: 9000,
   transport: 3000,
   shopping: 4000,
@@ -24,6 +25,43 @@ export const defaultBudgets: Budgets = {
   health: 1500,
   education: 1500,
   other: 1500,
+}
+
+const sumLimits = (limits: Budgets) => Object.values(limits).reduce((s, v) => s + v, 0)
+
+export const zeroLimits = Object.fromEntries(categories.map((c) => [c.id, 0])) as Budgets
+
+/** Every month starts with nothing budgeted */
+export const emptyBudget = (): MonthBudget => ({ total: 0, categories: { ...zeroLimits } })
+
+export const budgetFor = (plans: BudgetPlans, month: Month): MonthBudget => plans[month] ?? emptyBudget()
+
+export const allocatedOf = (budget: MonthBudget) => sumLimits(budget.categories)
+
+/** Sample budgets for the two sample months (last month and this month); later months start at 0 */
+export function createSamplePlans(): BudgetPlans {
+  const thisMonth = currentMonth()
+  const plan = (): MonthBudget => ({ total: sumLimits(sampleCategoryLimits), categories: { ...sampleCategoryLimits } })
+  return { [shiftMonth(thisMonth, -1)]: plan(), [thisMonth]: plan() }
+}
+
+/**
+ * First load: build plans from the old single, every-month budget if one was saved
+ * (applied to the sample months), otherwise use the sample plans.
+ */
+export function loadInitialPlans(): BudgetPlans {
+  try {
+    const raw = localStorage.getItem('spendhere:budgets')
+    if (raw) {
+      const legacy = { ...zeroLimits, ...(JSON.parse(raw) as Partial<Budgets>) }
+      const thisMonth = currentMonth()
+      const plan = (): MonthBudget => ({ total: sumLimits(legacy), categories: { ...legacy } })
+      return { [shiftMonth(thisMonth, -1)]: plan(), [thisMonth]: plan() }
+    }
+  } catch {
+    // ignore unreadable legacy data
+  }
+  return createSamplePlans()
 }
 
 // ---- Sample data: last month and this month so far, so the dashboard has something to show ----

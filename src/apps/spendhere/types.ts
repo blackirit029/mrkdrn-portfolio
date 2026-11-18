@@ -24,3 +24,12 @@ export type Budgets = Record<CategoryId, number>
 
 /** Month key, YYYY-MM */
 export type Month = string
+
+/** One month's plan: an overall budget plus a limit per category */
+export interface MonthBudget {
+  total: number
+  categories: Budgets
+}
+
+/** Months without an entry have no budget yet (everything 0) */
+export type BudgetPlans = Record<Month, MonthBudget>

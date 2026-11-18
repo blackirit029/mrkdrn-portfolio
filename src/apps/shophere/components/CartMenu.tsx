@@ -8,9 +8,10 @@ interface CartMenuProps {
   cart: Cart
   onRemove: (id: string) => void
   onClear: () => void
+  onCheckout: () => void
 }
 
-function CartMenu({ cart, onRemove, onClear }: CartMenuProps) {
+function CartMenu({ cart, onRemove, onClear, onCheckout }: CartMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -93,11 +94,13 @@ function CartMenu({ cart, onRemove, onClear }: CartMenuProps) {
                 </div>
                 <button
                   type="button"
-                  disabled
-                  title="Checkout isn't available in this demo"
-                  className="w-full cursor-not-allowed rounded-md bg-accent py-2 text-sm font-medium text-accent-fg opacity-60"
+                  onClick={() => {
+                    setIsOpen(false)
+                    onCheckout()
+                  }}
+                  className="w-full rounded-md bg-accent py-2 text-sm font-medium text-accent-fg transition-colors hover:bg-accent-hover"
                 >
-                  Checkout (demo)
+                  Checkout
                 </button>
               </div>
             </>

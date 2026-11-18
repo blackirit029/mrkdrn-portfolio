@@ -76,8 +76,13 @@ export const createId = () =>
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 
-export type BudgetStatus = 'good' | 'warning' | 'over'
+/** How many months ahead of the current one can be planned */
+export const MONTHS_AHEAD = 3
+export const lastPlannableMonth = (): Month => shiftMonth(currentMonth(), MONTHS_AHEAD)
+export const isFutureMonth = (month: Month) => month > currentMonth()
 
-/** On track below 80%, near limit up to 100%, then over */
+export type BudgetStatus = 'none' | 'good' | 'warning' | 'over'
+
+/** No limit set at 0; on track below 80%, near limit up to 100%, then over */
 export const budgetStatus = (spent: number, limit: number): BudgetStatus =>
-  limit <= 0 ? (spent > 0 ? 'over' : 'good') : spent > limit ? 'over' : spent / limit >= 0.8 ? 'warning' : 'good'
+  limit <= 0 ? 'none' : spent > limit ? 'over' : spent / limit >= 0.8 ? 'warning' : 'good'

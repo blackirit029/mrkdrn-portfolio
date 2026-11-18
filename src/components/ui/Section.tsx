@@ -5,11 +5,14 @@ interface SectionProps {
   id: string
   children: ReactNode
   className?: string
+  /** Fade in on page load instead of on scroll (for the section at the top of the page) */
+  revealOnLoad?: boolean
 }
 
 /** A page section that is a scroll target and fades in when it enters the viewport. */
-function Section({ id, children, className = '' }: SectionProps) {
-  const [ref, inView] = useInView<HTMLDivElement>()
+function Section({ id, children, className = '', revealOnLoad = false }: SectionProps) {
+  const [ref, scrolledIntoView] = useInView<HTMLDivElement>()
+  const inView = revealOnLoad || scrolledIntoView
 
   return (
     <section id={id} className={`scroll-mt-16 ${className}`}>
