@@ -14,6 +14,8 @@ export interface Project {
   tags: string[]
   repoUrl?: string
   liveUrl?: string
+  /** Screenshot of the app, one per theme */
+  screenshot?: { light: string; dark: string }
 }
 
 export interface Experience {

@@ -30,29 +30,41 @@ function Navbar({ activeId }: NavbarProps) {
   }, [isOpen])
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line-soft bg-page/80 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-line-soft bg-page/80 backdrop-blur motion-safe:animate-fade-down">
       <nav className="mx-auto flex h-16 max-w-4xl items-center justify-between gap-4 px-5 sm:px-6">
-        <a href="#home" onClick={closeMenu} className="truncate font-semibold tracking-tight text-fg">
+        <a
+          href="#home"
+          onClick={closeMenu}
+          className="truncate font-semibold tracking-tight text-fg motion-safe:animate-fade-up"
+          style={{ animationDelay: '120ms' }}
+        >
           {site.name}
         </a>
 
         <div className="flex items-center gap-2 sm:gap-6">
-          {/* Desktop links */}
+          {/* Desktop links: staggered entrance, sliding underline on the active/hovered link */}
           <ul className="hidden gap-6 text-sm sm:flex md:gap-8">
-            {navItems.map((item) => (
-              <li key={item.id}>
-                <a
-                  href={`#${item.id}`}
-                  aria-current={activeId === item.id ? 'location' : undefined}
-                  className={linkClass(activeId === item.id)}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
+            {navItems.map((item, index) => {
+              const isActive = activeId === item.id
+              return (
+                <li key={item.id} className="motion-safe:animate-fade-up" style={{ animationDelay: `${200 + index * 70}ms` }}>
+                  <a
+                    href={`#${item.id}`}
+                    aria-current={isActive ? 'location' : undefined}
+                    className={`${linkClass(isActive)} relative py-1 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:bg-fg after:transition-transform after:duration-300 ${
+                      isActive ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              )
+            })}
           </ul>
 
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <span className="motion-safe:animate-fade-up" style={{ animationDelay: '480ms' }}>
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          </span>
 
           {/* Mobile menu button */}
           <button

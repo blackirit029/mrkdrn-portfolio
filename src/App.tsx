@@ -1,5 +1,6 @@
 import Footer from './components/layout/Footer'
 import Navbar from './components/layout/Navbar'
+import BackToTop from './components/ui/BackToTop'
 import { sectionIds } from './data/site'
 import { useActiveSection } from './hooks/useActiveSection'
 import About from './sections/About'
@@ -20,6 +21,7 @@ function App() {
         <About />
       </main>
       <Footer />
+      <BackToTop />
     </div>
   )
 }

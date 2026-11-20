@@ -1,4 +1,10 @@
 import { withBase } from '../lib/withBase'
+import journalDark from '../assets/projects/journalhere-dark.jpg'
+import journalLight from '../assets/projects/journalhere-light.jpg'
+import shopDark from '../assets/projects/shophere-dark.jpg'
+import shopLight from '../assets/projects/shophere-light.jpg'
+import spendDark from '../assets/projects/spendhere-dark.jpg'
+import spendLight from '../assets/projects/spendhere-light.jpg'
 import type { Project } from '../types'
 
 export const projects: Project[] = [
@@ -10,6 +16,7 @@ export const projects: Project[] = [
     features: ['Write and browse journal entries', 'To-do list with filters', 'Saved in your browser'],
     tags: ['Productivity'],
     liveUrl: withBase('journalhere/'),
+    screenshot: { light: journalLight, dark: journalDark },
   },
   {
     id: 'shophere',
@@ -19,6 +26,7 @@ export const projects: Project[] = [
     features: ['Search and category browsing', 'Top products and product list', 'Add to cart'],
     tags: ['E-commerce'],
     liveUrl: withBase('shophere/'),
+    screenshot: { light: shopLight, dark: shopDark },
   },
   {
     id: 'spendhere',
@@ -28,5 +36,6 @@ export const projects: Project[] = [
     features: ['Spending dashboard with charts', 'Log and filter transactions', 'Monthly budgets per category'],
     tags: ['Finance', 'Dashboard'],
     liveUrl: withBase('spendhere/'),
+    screenshot: { light: spendLight, dark: spendDark },
   },
 ]

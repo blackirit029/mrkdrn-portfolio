@@ -1,8 +1,11 @@
+import type { CSSProperties } from 'react'
+import { useInView } from '../../hooks/useInView'
 import type { Project, ProjectStatus } from '../../types'
 import Tag from './Tag'
 
 interface ProjectCardProps {
   project: Project
+  index: number
 }
 
 const statusStyles: Record<ProjectStatus, string> = {
@@ -13,27 +16,89 @@ const statusStyles: Record<ProjectStatus, string> = {
 
 const linkClass = 'relative z-10 text-fg underline-offset-4 hover:underline'
 
-function ProjectCard({ project }: ProjectCardProps) {
-  const { liveUrl, repoUrl } = project
-  const isClickable = Boolean(liveUrl)
+/**
+ * One project per row: a framed screenshot on the left, details on the right.
+ * Enters from the left when scrolled into view: the card slides in, the screenshot
+ * wipes open, then the details rise in one after another.
+ */
+function ProjectCard({ project, index }: ProjectCardProps) {
+  const { liveUrl, repoUrl, screenshot } = project
+  // Wait until the card is a quarter of the way up the screen, so each scroll brings in one project
+  const [ref, inView] = useInView<HTMLElement>(0.25)
+
+  /** Staggered entrance for a child, started once the card is in view */
+  const enter = (animation: string, delay: number): { className: string; style?: CSSProperties } =>
+    inView ? { className: animation, style: { animationDelay: `${delay}ms` } } : { className: '' }
+
+  const shot = enter('motion-safe:animate-reveal-right', 250)
+  const step = (n: number) => enter('motion-safe:animate-fade-up', 450 + n * 90)
+  const number = String(index + 1).padStart(2, '0')
 
   return (
     <article
-      className={`group relative flex flex-col rounded-lg border border-line bg-card p-5 transition sm:p-6 ${
-        isClickable
-          ? 'hover:-translate-y-0.5 hover:border-subtle hover:shadow-md focus-within:ring-2 focus-within:ring-fg/20 dark:hover:shadow-black/40'
-          : ''
-      }`}
+      ref={ref}
+      className={`group relative grid overflow-hidden rounded-2xl border border-line bg-card shadow-sm transition-[box-shadow,border-color] duration-300 md:grid-cols-[1.15fr_1fr] ${
+        liveUrl ? 'hover:border-subtle hover:shadow-xl focus-within:ring-2 focus-within:ring-fg/20 dark:hover:shadow-black/50' : ''
+      } ${inView ? 'motion-safe:animate-slide-in-left' : 'motion-safe:opacity-0'}`}
     >
-      <div className="flex items-start justify-between gap-4">
-        <h3 className="text-lg font-medium text-fg">
+      {/* Screenshot in a browser frame */}
+      <div className="relative border-b border-line-soft bg-surface p-4 sm:p-6 md:border-r md:border-b-0 lg:p-8">
+        <div
+          style={shot.style}
+          className={`overflow-hidden rounded-lg border border-line bg-card shadow-lg dark:shadow-black/40 ${shot.className}`}
+        >
+          <div className="flex items-center gap-1.5 border-b border-line-soft bg-chip/60 px-3 py-2" aria-hidden>
+            <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+            <span className="ml-2 truncate rounded bg-card px-2 py-0.5 text-[10px] text-subtle">
+              {project.title.toLowerCase()}.app
+            </span>
+          </div>
+          <div className="aspect-[16/10] overflow-hidden bg-chip">
+            {screenshot ? (
+              <>
+                <img
+                  src={screenshot.light}
+                  alt={`Screenshot of ${project.title}`}
+                  loading="lazy"
+                  width={1280}
+                  height={800}
+                  className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04] dark:hidden"
+                />
+                <img
+                  src={screenshot.dark}
+                  alt={`Screenshot of ${project.title}`}
+                  loading="lazy"
+                  width={1280}
+                  height={800}
+                  className="hidden h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04] dark:block"
+                />
+              </>
+            ) : (
+              <div className="grid h-full place-items-center text-sm text-subtle">Preview coming soon</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Details */}
+      <div className="flex flex-col p-5 sm:p-8">
+        <div style={step(0).style} className={`flex items-center justify-between gap-4 ${step(0).className}`}>
+          <span className="font-mono text-xs tracking-widest text-subtle">{number}</span>
+          <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-medium ${statusStyles[project.status]}`}>
+            {project.status}
+          </span>
+        </div>
+
+        <h3 style={step(1).style} className={`mt-3 text-2xl font-semibold tracking-tight text-fg ${step(1).className}`}>
           {liveUrl ? (
             // The link's ::after covers the whole card, making the card clickable
             <a
               href={liveUrl}
               target="_blank"
               rel="noreferrer"
-              className="outline-none after:absolute after:inset-0 after:rounded-lg after:content-['']"
+              className="outline-none after:absolute after:inset-0 after:rounded-2xl after:content-['']"
             >
               {project.title}
             </a>
@@ -41,38 +106,47 @@ function ProjectCard({ project }: ProjectCardProps) {
             project.title
           )}
         </h3>
-        <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-medium ${statusStyles[project.status]}`}>
-          {project.status}
-        </span>
-      </div>
-      <p className="mt-2 text-sm leading-relaxed text-body">{project.description}</p>
-      <ul className="mt-4 flex-1 list-disc space-y-1 pl-5 text-sm text-muted">
-        {project.features.map((feature) => (
-          <li key={feature}>{feature}</li>
-        ))}
-      </ul>
-      <div className="mt-5 flex flex-wrap gap-2">
-        {project.tags.map((tag) => (
-          <Tag key={tag} label={tag} />
-        ))}
-      </div>
-      {(repoUrl || liveUrl) && (
-        <div className="mt-4 flex gap-4 text-sm">
-          {liveUrl && (
-            <span className="font-medium text-fg" aria-hidden>
-              Open app{' '}
-              <span className="inline-block transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                ↗
-              </span>
-            </span>
-          )}
-          {repoUrl && (
-            <a href={repoUrl} target="_blank" rel="noreferrer" className={linkClass}>
-              Code →
-            </a>
-          )}
+
+        <p style={step(2).style} className={`mt-2 text-sm leading-relaxed text-body ${step(2).className}`}>
+          {project.description}
+        </p>
+
+        <ul style={step(3).style} className={`mt-4 flex-1 space-y-1.5 text-sm text-muted ${step(3).className}`}>
+          {project.features.map((feature) => (
+            <li key={feature} className="flex gap-2">
+              <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-subtle" />
+              {feature}
+            </li>
+          ))}
+        </ul>
+
+        <div style={step(4).style} className={`mt-5 flex flex-wrap gap-2 ${step(4).className}`}>
+          {project.tags.map((tag) => (
+            <Tag key={tag} label={tag} />
+          ))}
         </div>
-      )}
+
+        {(repoUrl || liveUrl) && (
+          <div style={step(5).style} className={`mt-6 flex items-center gap-4 text-sm ${step(5).className}`}>
+            {liveUrl && (
+              <span
+                aria-hidden
+                className="inline-flex items-center gap-1.5 rounded-full bg-inverse px-4 py-2 font-medium text-inverse-fg transition-colors group-hover:bg-inverse-hover"
+              >
+                Open app
+                <span className="inline-block transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                  ↗
+                </span>
+              </span>
+            )}
+            {repoUrl && (
+              <a href={repoUrl} target="_blank" rel="noreferrer" className={linkClass}>
+                Code →
+              </a>
+            )}
+          </div>
+        )}
+      </div>
     </article>
   )
 }
