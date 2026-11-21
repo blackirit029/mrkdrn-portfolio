@@ -4,7 +4,13 @@ interface IconProps {
 
 const base = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, viewBox: '0 0 24 24', 'aria-hidden': true }
 
-export const WalletIcon = ({ className = 'h-4.5 w-4.5' }: IconProps) => (
+export const PencilIcon = ({ className = 'h-4 w-4' }: IconProps) => (
+  <svg className={className} {...base}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" />
+  </svg>
+)
+
+export const WalletIcon =({ className = 'h-4.5 w-4.5' }: IconProps) => (
   <svg className={className} {...base}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M4 7a2 2 0 0 1 2-2h11v4M4 7v10a2 2 0 0 0 2 2h13V9H6a2 2 0 0 1-2-2Z" />
     <circle cx="15.5" cy="14" r="1.2" fill="currentColor" stroke="none" />

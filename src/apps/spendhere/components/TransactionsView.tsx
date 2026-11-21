@@ -1,7 +1,9 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { categories, categoryById } from '../data'
 import type { CategoryId, Month, Transaction } from '../types'
-import { byNewest, createId, dayLabel, formatMoney, inMonth, monthName, sum, todayKey } from '../utils'
+import ConfirmDialog from '../../../components/ui/ConfirmDialog'
+import { enter } from '../enter'
+import { byNewest, createId, dayLabel, formatMoney, inMonth, monthName, shortDate, sum, todayKey } from '../utils'
 import { SearchIcon } from './Icons'
 import TransactionRow from './TransactionRow'
 import ViewHeader from './ViewHeader'
@@ -11,13 +13,15 @@ interface TransactionsViewProps {
   onMonthChange: (month: Month) => void
   transactions: Transaction[]
   onAdd: (transaction: Transaction) => void
+  onUpdate: (id: string, changes: Pick<Transaction, 'amount' | 'categoryId' | 'note' | 'date'>) => void
   onDelete: (id: string) => void
 }
 
 const fieldClass =
   'h-10 w-full rounded-md border border-line bg-page px-3 text-sm text-fg placeholder:text-subtle focus:border-accent focus:outline-none'
 
-function TransactionsView({ month, onMonthChange, transactions, onAdd, onDelete }: TransactionsViewProps) {
+function TransactionsView({ month, onMonthChange, transactions, onAdd, onUpdate, onDelete }: TransactionsViewProps) {
+  const [pendingDelete, setPendingDelete] = useState<Transaction | null>(null)
   const [amount, setAmount] = useState('')
   const [categoryId, setCategoryId] = useState<CategoryId>('food')
   const [note, setNote] = useState('')
@@ -52,7 +56,12 @@ function TransactionsView({ month, onMonthChange, transactions, onAdd, onDelete 
     <>
       <ViewHeader title="Transactions" month={month} onMonthChange={onMonthChange} />
 
-      <form onSubmit={handleSubmit} className="rounded-xl border border-line bg-card p-4 sm:p-5" aria-label="Add expense">
+      <form
+        onSubmit={handleSubmit}
+        style={enter(0).style}
+        className={`rounded-xl border border-line bg-card p-4 sm:p-5 ${enter(0).className}`}
+        aria-label="Add expense"
+      >
         <h2 className="text-sm font-medium text-fg">Add expense</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1.2fr_1.6fr_1fr_auto]">
           <label className="block">
@@ -103,7 +112,7 @@ function TransactionsView({ month, onMonthChange, transactions, onAdd, onDelete 
       </form>
 
       {/* Filters: one row above the list */}
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div style={enter(1).style} className={`mt-6 flex flex-col gap-3 sm:flex-row sm:items-center ${enter(1).className}`}>
         <label className="relative flex-1">
           <span className="sr-only">Search transactions</span>
           <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-subtle" />
@@ -128,33 +137,53 @@ function TransactionsView({ month, onMonthChange, transactions, onAdd, onDelete 
         </label>
       </div>
 
-      <p className="mt-4 text-sm text-muted">
+      <p style={enter(2).style} className={`mt-4 text-sm text-muted ${enter(2).className}`}>
         {count} {count === 1 ? 'transaction' : 'transactions'} in {monthName(month)} ·{' '}
         <span className="font-medium text-fg">{formatMoney(total)}</span>
       </p>
 
       {groups.length === 0 ? (
-        <div className="mt-4 rounded-xl border border-dashed border-line px-6 py-12 text-center">
+        <div style={enter(3).style} className={`mt-4 rounded-xl border border-dashed border-line px-6 py-12 text-center ${enter(3).className}`}>
           <p className="font-medium text-fg">No transactions</p>
           <p className="mt-1 text-sm text-muted">Add an expense above or try another month or filter.</p>
         </div>
       ) : (
         <div className="mt-4 space-y-5">
-          {groups.map(([day, items]) => (
-            <section key={day} aria-label={dayLabel(day)}>
-              <div className="mb-2 flex items-baseline justify-between px-1 text-xs">
-                <h3 className="font-semibold tracking-widest text-subtle uppercase">{dayLabel(day)}</h3>
-                <span className="text-muted tabular-nums">{formatMoney(sum(items))}</span>
-              </div>
-              <ul className="divide-y divide-line-soft overflow-hidden rounded-xl border border-line bg-card">
-                {items.map((t) => (
-                  <TransactionRow key={t.id} transaction={t} onDelete={onDelete} />
-                ))}
-              </ul>
-            </section>
-          ))}
+          {groups.map(([day, items], i) => {
+            // Day groups keep sliding in after the controls; capped so long months don't wait forever
+            const card = enter(Math.min(3 + i, 10))
+            return (
+              <section key={day} aria-label={dayLabel(day)} style={card.style} className={card.className}>
+                <div className="mb-2 flex items-baseline justify-between px-1 text-xs">
+                  <h3 className="font-semibold tracking-widest text-subtle uppercase">{dayLabel(day)}</h3>
+                  <span className="text-muted tabular-nums">{formatMoney(sum(items))}</span>
+                </div>
+                <ul className="divide-y divide-line-soft overflow-hidden rounded-xl border border-line bg-card">
+                  {items.map((t) => (
+                    <TransactionRow key={t.id} transaction={t} onUpdate={onUpdate} onRequestDelete={setPendingDelete} />
+                  ))}
+                </ul>
+              </section>
+            )
+          })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete this transaction?"
+        description={
+          pendingDelete
+            ? `"${pendingDelete.note || categoryById[pendingDelete.categoryId].name}" (${formatMoney(pendingDelete.amount)} on ${shortDate(pendingDelete.date)}) will be permanently deleted. This can't be undone.`
+            : ''
+        }
+        confirmLabel="Delete transaction"
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (pendingDelete) onDelete(pendingDelete.id)
+          setPendingDelete(null)
+        }}
+      />
     </>
   )
 }

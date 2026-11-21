@@ -18,6 +18,7 @@ import { BudgetMeter, BudgetStatusLabel } from './BudgetMeter'
 import CategoryBreakdown from './CategoryBreakdown'
 import DailySpendingChart from './DailySpendingChart'
 import { ArrowIcon } from './Icons'
+import { enter } from '../enter'
 import TransactionRow from './TransactionRow'
 import ViewHeader from './ViewHeader'
 
@@ -30,9 +31,10 @@ interface DashboardViewProps {
   onSetBudget: () => void
 }
 
-function StatTile({ label, value, detail }: { label: string; value: string; detail?: string }) {
+function StatTile({ label, value, detail, index }: { label: string; value: string; detail?: string; index: number }) {
+  const card = enter(index)
   return (
-    <div className="rounded-xl border border-line bg-card p-4">
+    <div style={card.style} className={`h-full rounded-xl border border-line bg-card p-4 ${card.className}`}>
       <p className="text-xs text-muted">{label}</p>
       <p className="mt-1 truncate text-xl font-semibold tracking-tight text-fg">{value}</p>
       {detail && <p className="mt-0.5 truncate text-xs text-muted">{detail}</p>}
@@ -81,11 +83,15 @@ function DashboardView({ month, onMonthChange, transactions, budget, onViewAll, 
 
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         {/* Hero figure: the one number this view leads with */}
-        <section aria-label="Monthly total" className="flex flex-col justify-between rounded-xl border border-line bg-card p-5 sm:p-6">
+        <section
+          aria-label="Monthly total"
+          style={enter(0).style}
+          className={`flex flex-col justify-between rounded-xl border border-line bg-card p-5 sm:p-6 ${enter(0).className}`}
+        >
           <div>
             <p className="text-sm text-muted">Spent in {monthName(month)}</p>
             <p className="mt-1 text-5xl font-semibold tracking-tight text-fg">{formatMoney(stats.total)}</p>
-  
+
             {stats.change !== null && (
               <p className="mt-2 flex flex-wrap items-center gap-1.5 text-sm">
                 <span
@@ -99,7 +105,7 @@ function DashboardView({ month, onMonthChange, transactions, budget, onViewAll, 
                 </span>
               </p>
             )}
-  
+
             {stats.isFuture && (
               <p className="mt-2 text-sm text-muted">{monthName(month)} hasn't started yet.</p>
             )}
@@ -135,13 +141,15 @@ function DashboardView({ month, onMonthChange, transactions, budget, onViewAll, 
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
           <StatTile
+            index={1}
             label="Daily average"
             value={stats.isFuture ? '—' : formatMoney(stats.dailyAverage)}
             detail={stats.isFuture ? 'Month not started' : stats.isCurrent ? 'So far this month' : 'Over the month'}
           />
-          <StatTile label="Transactions" value={String(stats.monthTx.length)} detail={`in ${monthName(month)}`} />
+          <StatTile index={2} label="Transactions" value={String(stats.monthTx.length)} detail={`in ${monthName(month)}`} />
           <div className="col-span-2 lg:col-span-1">
             <StatTile
+              index={3}
               label="Top category"
               value={stats.top ? categoryById[stats.top[0]].name : '—'}
               detail={stats.top ? `${formatMoney(stats.top[1])} · ${Math.round((stats.top[1] / stats.total) * 100)}% of spending` : undefined}
@@ -150,14 +158,18 @@ function DashboardView({ month, onMonthChange, transactions, budget, onViewAll, 
         </div>
       </div>
 
-      <div className="mt-4">
+      <div style={enter(4).style} className={`mt-4 ${enter(4).className}`}>
         <DailySpendingChart month={month} transactions={stats.monthTx} />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <CategoryBreakdown transactions={stats.monthTx} />
+        <CategoryBreakdown transactions={stats.monthTx} style={enter(5).style} className={enter(5).className} />
 
-        <section aria-labelledby="recent-heading" className="overflow-hidden rounded-xl border border-line bg-card">
+        <section
+          aria-labelledby="recent-heading"
+          style={enter(6).style}
+          className={`overflow-hidden rounded-xl border border-line bg-card ${enter(6).className}`}
+        >
           <div className="flex items-center justify-between px-4 pt-4 sm:px-5 sm:pt-5">
             <div>
               <h2 id="recent-heading" className="text-sm font-medium text-fg">

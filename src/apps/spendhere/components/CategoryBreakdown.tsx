@@ -1,14 +1,16 @@
-import { useMemo } from 'react'
+import { useMemo, type CSSProperties } from 'react'
 import { categories } from '../data'
 import type { Transaction } from '../types'
 import { formatMoney } from '../utils'
 
 interface CategoryBreakdownProps {
   transactions: Transaction[]
+  style?: CSSProperties
+  className?: string
 }
 
 /** Ranked bars, one per category: every bar carries its name and amount as text (no color-only identity). */
-function CategoryBreakdown({ transactions }: CategoryBreakdownProps) {
+function CategoryBreakdown({ transactions, style, className = '' }: CategoryBreakdownProps) {
   const rows = useMemo(() => {
     const total = transactions.reduce((s, t) => s + t.amount, 0)
     return categories
@@ -23,7 +25,7 @@ function CategoryBreakdown({ transactions }: CategoryBreakdownProps) {
   const max = rows[0]?.amount ?? 0
 
   return (
-    <section aria-labelledby="category-heading" className="rounded-xl border border-line bg-card p-4 sm:p-5">
+    <section aria-labelledby="category-heading" style={style} className={`rounded-xl border border-line bg-card p-4 sm:p-5 ${className}`}>
       <h2 id="category-heading" className="text-sm font-medium text-fg">
         By category
       </h2>

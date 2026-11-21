@@ -1,5 +1,19 @@
 @import '../../index.css';
 
+/* Hero carousel: the active dot fills over one slide's duration (the animation end advances the slide) */
+@theme {
+  --animate-carousel-progress: carousel-progress var(--slide-duration, 5.5s) linear forwards;
+
+  @keyframes carousel-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+}
+
 /* ShopHere accent: a deep teal, paired with the shared neutral tokens */
 @theme inline {
   --color-accent: var(--accent);

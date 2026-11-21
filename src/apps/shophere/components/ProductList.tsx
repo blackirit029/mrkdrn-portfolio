@@ -1,7 +1,7 @@
 import type { Cart, Product, SortOption } from '../types'
 import { categoryName } from '../data'
 import { CloseIcon } from './Icons'
-import ProductCard from './ProductCard'
+import InfiniteProductGrid from './InfiniteProductGrid'
 import SectionHeading from './SectionHeading'
 
 interface ProductListProps {
@@ -95,13 +95,8 @@ function ProductList({
           </button>
         </div>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          {products.map((product) => (
-            <li key={product.id} className="motion-safe:animate-fade-in">
-              <ProductCard product={product} quantityInCart={cart[product.id] ?? 0} onAddToCart={onAddToCart} />
-            </li>
-          ))}
-        </ul>
+        // Keyed by the filters so a new search, category or sort starts again from the first page
+        <InfiniteProductGrid key={`${query.trim()}|${categoryId}|${sort}`} products={products} cart={cart} onAddToCart={onAddToCart} />
       )}
     </section>
   )

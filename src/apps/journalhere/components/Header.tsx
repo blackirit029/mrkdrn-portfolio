@@ -16,7 +16,7 @@ function Header({ tab, onSelectTab, counts }: HeaderProps) {
   const { theme, toggleTheme } = useTheme()
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line-soft bg-page/80 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-line-soft bg-page/80 backdrop-blur motion-safe:animate-fade-down">
       <div className="mx-auto grid max-w-3xl grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3 px-5 py-3 sm:grid-cols-[1fr_auto_1fr] sm:px-6">
         <a href="#journal" className="flex items-center gap-2 font-semibold tracking-tight text-fg">
           <BookIcon />

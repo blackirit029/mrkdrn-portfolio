@@ -4,7 +4,13 @@ interface IconProps {
 
 const base = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, viewBox: '0 0 24 24', 'aria-hidden': true }
 
-export const BagIcon = ({ className = 'h-5 w-5' }: IconProps) => (
+export const ChevronIcon = ({ className = 'h-4 w-4', direction = 'right' }: IconProps & { direction?: 'left' | 'right' }) => (
+  <svg className={className} {...base} strokeWidth={2.2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d={direction === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
+  </svg>
+)
+
+export const BagIcon =({ className = 'h-5 w-5' }: IconProps) => (
   <svg className={className} {...base}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14l-1 12H6L5 8Zm4 0V6a3 3 0 0 1 6 0v2" />
   </svg>

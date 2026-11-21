@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { navItems, site } from '../../data/site'
 import { useTheme } from '../../hooks/useTheme'
 import ThemeToggle from '../ui/ThemeToggle'
+import TypewriterName from '../ui/TypewriterName'
 
 interface NavbarProps {
   activeId: string
@@ -38,7 +39,7 @@ function Navbar({ activeId }: NavbarProps) {
           className="truncate font-semibold tracking-tight text-fg motion-safe:animate-fade-up"
           style={{ animationDelay: '120ms' }}
         >
-          {site.name}
+          <TypewriterName name={site.name} />
         </a>
 
         <div className="flex items-center gap-2 sm:gap-6">

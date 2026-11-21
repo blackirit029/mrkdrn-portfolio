@@ -4,6 +4,18 @@ interface IconProps {
 
 const base = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, viewBox: '0 0 24 24', 'aria-hidden': true }
 
+export const PencilIcon = ({ className = 'h-4 w-4' }: IconProps) => (
+  <svg className={className} {...base}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" />
+  </svg>
+)
+
+export const XIcon = ({ className = 'h-4 w-4' }: IconProps) => (
+  <svg className={className} {...base} strokeWidth={2}>
+    <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
+  </svg>
+)
+
 export const TrashIcon = ({ className = 'h-4 w-4' }: IconProps) => (
   <svg className={className} {...base}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />

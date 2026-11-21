@@ -3,6 +3,7 @@ import { allocatedOf, categories } from '../data'
 import type { CategoryId, Month, MonthBudget, Transaction } from '../types'
 import { formatMoney, inMonth, isFutureMonth, monthName, shiftMonth } from '../utils'
 import { BudgetMeter, BudgetStatusLabel } from './BudgetMeter'
+import { enter } from '../enter'
 import ViewHeader from './ViewHeader'
 
 interface BudgetsViewProps {
@@ -50,7 +51,10 @@ function BudgetsView({
       <ViewHeader title="Budgets" month={month} onMonthChange={onMonthChange} />
 
       {isEmpty && (
-        <div className="mb-4 flex flex-col gap-3 rounded-xl border border-dashed border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div
+          style={enter(0).style}
+          className={`mb-4 flex flex-col gap-3 rounded-xl border border-dashed border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 ${enter(0).className}`}
+        >
           <p className="text-sm text-body">
             <span className="font-medium text-fg">No budget for {monthName(month)} yet.</span> Enter a monthly budget below
             {canCopy ? `, or start from ${monthName(prevMonth)}'s.` : '.'}
@@ -67,7 +71,11 @@ function BudgetsView({
         </div>
       )}
 
-      <section aria-label="Monthly budget" className="rounded-xl border border-line bg-card p-5 sm:p-6">
+      <section
+        aria-label="Monthly budget"
+        style={enter(1).style}
+        className={`rounded-xl border border-line bg-card p-5 sm:p-6 ${enter(1).className}`}
+      >
         <div className="grid gap-5 sm:grid-cols-3">
           <label className="block">
             <span className="text-xs text-muted">Monthly budget</span>
@@ -130,7 +138,7 @@ function BudgetsView({
         </div>
       </section>
 
-      <div className="mt-6 mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
+      <div style={enter(2).style} className={`mt-6 mb-3 flex flex-wrap items-center justify-between gap-3 px-1 ${enter(2).className}`}>
         <h2 className="text-xs font-semibold tracking-widest text-subtle uppercase">Category limits</h2>
         <div className="flex gap-4 text-xs">
           <button
@@ -153,11 +161,11 @@ function BudgetsView({
       </div>
 
       <ul className="grid gap-3 sm:grid-cols-2">
-        {categories.map((category) => {
+        {categories.map((category, i) => {
           const spent = spentByCategory[category.id]
           const limit = budget.categories[category.id]
           return (
-            <li key={category.id} className="rounded-xl border border-line bg-card p-4">
+            <li key={category.id} style={enter(3 + i, 70).style} className={`rounded-xl border border-line bg-card p-4 ${enter(3 + i, 70).className}`}>
               <div className="flex items-center justify-between gap-3">
                 <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-fg">
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: category.color }} aria-hidden />

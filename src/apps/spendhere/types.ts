@@ -18,6 +18,8 @@ export interface Transaction {
   /** Local date, YYYY-MM-DD */
   date: string
   createdAt: number
+  /** Set when the transaction is edited (ms since epoch) */
+  updatedAt?: number
 }
 
 export type Budgets = Record<CategoryId, number>

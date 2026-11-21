@@ -6,6 +6,7 @@ export interface JournalEntry {
   title: string
   body: string
   createdAt: string // ISO date
+  updatedAt?: string // ISO date, set when edited
 }
 
 export interface Todo {
@@ -13,6 +14,7 @@ export interface Todo {
   text: string
   done: boolean
   createdAt: string // ISO date
+  updatedAt?: string // ISO date, set when edited
 }
 
 export type TodoFilter = 'all' | 'active' | 'done'

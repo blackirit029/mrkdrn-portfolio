@@ -1,22 +1,30 @@
 import { useMemo, useState, type FormEvent, type KeyboardEvent } from 'react'
 import type { JournalEntry } from '../types'
-import { createId, formatTime, groupByDay } from '../utils'
+import { createId, groupByDay } from '../utils'
+import ConfirmDialog from '../../../components/ui/ConfirmDialog'
 import EmptyState from './EmptyState'
-import { SearchIcon, TrashIcon } from './Icons'
+import { SearchIcon } from './Icons'
+import JournalEntryCard from './JournalEntryCard'
 
 interface JournalViewProps {
   entries: JournalEntry[]
   onAdd: (entry: JournalEntry) => void
+  onUpdate: (id: string, changes: Pick<JournalEntry, 'title' | 'body'>) => void
   onDelete: (id: string) => void
 }
+
+/** Short preview of an entry for the delete confirmation */
+const describe = (entry: JournalEntry) =>
+  entry.title ? `"${entry.title}"` : `"${entry.body.length > 60 ? `${entry.body.slice(0, 60)}…` : entry.body}"`
 
 const inputClass =
   'w-full rounded-md border border-line bg-card px-3 py-2 text-fg placeholder:text-subtle focus:border-subtle focus:outline-none focus:ring-2 focus:ring-fg/10'
 
-function JournalView({ entries, onAdd, onDelete }: JournalViewProps) {
+function JournalView({ entries, onAdd, onUpdate, onDelete }: JournalViewProps) {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [query, setQuery] = useState('')
+  const [pendingDelete, setPendingDelete] = useState<JournalEntry | null>(null)
 
   const canSave = body.trim().length > 0
 
@@ -113,39 +121,37 @@ function JournalView({ entries, onAdd, onDelete }: JournalViewProps) {
         ) : groups.length === 0 ? (
           <EmptyState title="No matches" description={`Nothing found for "${query}".`} />
         ) : (
-          groups.map((group) => (
+          groups.map((group, groupIndex) => (
             <div key={group.label}>
               <h2 className="mb-3 text-xs font-semibold tracking-widest text-subtle uppercase">{group.label}</h2>
               <ul className="space-y-3">
-                {group.items.map((entry) => (
-                  <li
+                {group.items.map((entry, i) => (
+                  <JournalEntryCard
                     key={entry.id}
-                    className="group rounded-lg border border-line bg-card p-4 motion-safe:animate-fade-in sm:p-5"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        {entry.title && <h3 className="font-medium break-words text-fg">{entry.title}</h3>}
-                        <time dateTime={entry.createdAt} className="text-xs text-subtle">
-                          {formatTime(entry.createdAt)}
-                        </time>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => onDelete(entry.id)}
-                        aria-label={`Delete entry${entry.title ? ` "${entry.title}"` : ''}`}
-                        className="shrink-0 rounded-md p-1.5 text-subtle transition hover:bg-chip hover:text-fg sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
-                      >
-                        <TrashIcon />
-                      </button>
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed break-words whitespace-pre-wrap text-body">{entry.body}</p>
-                  </li>
+                    entry={entry}
+                    onUpdate={onUpdate}
+                    onRequestDelete={setPendingDelete}
+                    // Entries slide in from the left one after another
+                    style={{ animationDelay: `${Math.min(150 + (groupIndex * 3 + i) * 70, 700)}ms` }}
+                  />
                 ))}
               </ul>
             </div>
           ))
         )}
       </section>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete this entry?"
+        description={pendingDelete ? `${describe(pendingDelete)} will be permanently deleted. This can't be undone.` : ''}
+        confirmLabel="Delete entry"
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (pendingDelete) onDelete(pendingDelete.id)
+          setPendingDelete(null)
+        }}
+      />
     </div>
   )
 }

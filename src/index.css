@@ -31,6 +31,19 @@
   /* Section subtitles: a hairline draws, then the label rises out of a mask */
   --animate-line-grow: line-grow 0.7s cubic-bezier(0.65, 0, 0.35, 1) both;
   --animate-rise-in: rise-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* Typewriter caret blinks while the text is paused */
+  --animate-caret: caret 1s steps(1) infinite;
+
+  @keyframes caret {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
   /* Back-to-top button idles with a gentle bob */
   --animate-float: float 3s ease-in-out infinite;
 

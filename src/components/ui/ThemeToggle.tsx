@@ -25,6 +25,7 @@ function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
     <button
       type="button"
       onClick={handleClick}
+      data-theme-toggle
       aria-label={label}
       title={label}
       className="relative h-9 w-9 overflow-hidden rounded-md text-muted transition-colors hover:bg-chip hover:text-fg active:scale-90"

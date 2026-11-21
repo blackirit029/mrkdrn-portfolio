@@ -1,16 +1,21 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import type { Todo, TodoFilter } from '../types'
 import { createId } from '../utils'
+import ConfirmDialog from '../../../components/ui/ConfirmDialog'
 import EmptyState from './EmptyState'
-import { CheckIcon, TrashIcon } from './Icons'
+import TodoItem from './TodoItem'
 
 interface TodoViewProps {
   todos: Todo[]
   onAdd: (todo: Todo) => void
   onToggle: (id: string) => void
+  onUpdate: (id: string, text: string) => void
   onDelete: (id: string) => void
   onClearDone: () => void
 }
+
+/** What the confirmation dialog is asking about: one task, or every completed task */
+type PendingDelete = { kind: 'one'; todo: Todo } | { kind: 'completed' } | null
 
 const filters: { id: TodoFilter; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -24,9 +29,10 @@ const emptyMessages: Record<TodoFilter, { title: string; description: string }> 
   done: { title: 'Nothing completed yet', description: 'Tasks you finish will show up here.' },
 }
 
-function TodoView({ todos, onAdd, onToggle, onDelete, onClearDone }: TodoViewProps) {
+function TodoView({ todos, onAdd, onToggle, onUpdate, onDelete, onClearDone }: TodoViewProps) {
   const [text, setText] = useState('')
   const [filter, setFilter] = useState<TodoFilter>('all')
+  const [pending, setPending] = useState<PendingDelete>(null)
 
   const counts = useMemo(() => {
     const done = todos.filter((t) => t.done).length
@@ -99,7 +105,7 @@ function TodoView({ todos, onAdd, onToggle, onDelete, onClearDone }: TodoViewPro
           {counts.done > 0 && (
             <button
               type="button"
-              onClick={onClearDone}
+              onClick={() => setPending({ kind: 'completed' })}
               className="text-xs text-muted underline-offset-4 hover:text-fg hover:underline"
             >
               Clear completed
@@ -112,39 +118,38 @@ function TodoView({ todos, onAdd, onToggle, onDelete, onClearDone }: TodoViewPro
         <EmptyState {...emptyMessages[filter]} />
       ) : (
         <ul className="divide-y divide-line-soft overflow-hidden rounded-lg border border-line bg-card">
-          {visible.map((todo) => (
-            <li key={todo.id} className="group flex items-center gap-3 px-4 py-3 motion-safe:animate-fade-in">
-              <button
-                type="button"
-                role="checkbox"
-                aria-checked={todo.done}
-                aria-label={`Mark "${todo.text}" as ${todo.done ? 'not done' : 'done'}`}
-                onClick={() => onToggle(todo.id)}
-                className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition-colors ${
-                  todo.done ? 'border-inverse bg-inverse text-inverse-fg' : 'border-subtle hover:border-fg'
-                }`}
-              >
-                {todo.done && <CheckIcon className="h-3 w-3" />}
-              </button>
-              <span
-                className={`min-w-0 flex-1 text-sm break-words transition-colors ${
-                  todo.done ? 'text-subtle line-through' : 'text-fg'
-                }`}
-              >
-                {todo.text}
-              </span>
-              <button
-                type="button"
-                onClick={() => onDelete(todo.id)}
-                aria-label={`Delete "${todo.text}"`}
-                className="shrink-0 rounded-md p-1.5 text-subtle transition hover:bg-chip hover:text-fg sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
-              >
-                <TrashIcon />
-              </button>
-            </li>
+          {visible.map((todo, i) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onToggle={onToggle}
+              onUpdate={onUpdate}
+              onRequestDelete={(t) => setPending({ kind: 'one', todo: t })}
+              // Tasks slide in from the left one after another
+              style={{ animationDelay: `${Math.min(150 + i * 60, 700)}ms` }}
+            />
           ))}
         </ul>
       )}
+
+      <ConfirmDialog
+        open={pending !== null}
+        title={pending?.kind === 'completed' ? 'Clear completed tasks?' : 'Delete this task?'}
+        description={
+          pending?.kind === 'completed'
+            ? `${counts.done} completed ${counts.done === 1 ? 'task' : 'tasks'} will be permanently deleted. This can't be undone.`
+            : pending?.kind === 'one'
+              ? `"${pending.todo.text}" will be permanently deleted. This can't be undone.`
+              : ''
+        }
+        confirmLabel={pending?.kind === 'completed' ? 'Clear completed' : 'Delete task'}
+        onCancel={() => setPending(null)}
+        onConfirm={() => {
+          if (pending?.kind === 'completed') onClearDone()
+          else if (pending?.kind === 'one') onDelete(pending.todo.id)
+          setPending(null)
+        }}
+      />
     </div>
   )
 }

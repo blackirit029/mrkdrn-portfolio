@@ -7,12 +7,19 @@
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
     <title>Mark Adrian Grandia · Frontend Developer</title>
-    <!-- Apply the saved (or system) theme before first paint to avoid a light/dark flash -->
+    <!--
+      Theme before first paint. When the page should be dark and the browser can animate the switch,
+      it starts light and is marked for an intro: the app then reveals dark with the toggle's circle
+      animation. Otherwise (no View Transitions, or reduced motion) dark is applied right away.
+    -->
     <script>
       try {
         var saved = localStorage.getItem('theme')
         var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
-        document.documentElement.classList.toggle('dark', dark)
+        var canAnimate =
+          'startViewTransition' in document && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (dark && canAnimate) document.documentElement.dataset.introTheme = 'dark'
+        else document.documentElement.classList.toggle('dark', dark)
       } catch (e) {}
     </script>
   </head>

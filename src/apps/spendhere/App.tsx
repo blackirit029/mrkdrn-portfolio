@@ -42,8 +42,8 @@ function App() {
       <Header tab={tab} onSelectTab={selectTab} />
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
-        {/* Keyed by tab so the fade-in replays on every switch */}
-        <div key={tab} role="tabpanel" aria-label={tab} className="motion-safe:animate-fade-in">
+        {/* Keyed by tab so each card's slide-in from the left replays on every switch */}
+        <div key={tab} role="tabpanel" aria-label={tab}>
           {tab === 'dashboard' && (
             <DashboardView
               month={month}
@@ -60,6 +60,9 @@ function App() {
               onMonthChange={setMonth}
               transactions={transactions}
               onAdd={addTransaction}
+              onUpdate={(id, changes) =>
+                setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, ...changes, updatedAt: Date.now() } : t)))
+              }
               onDelete={(id) => setTransactions((prev) => prev.filter((t) => t.id !== id))}
             />
           )}
