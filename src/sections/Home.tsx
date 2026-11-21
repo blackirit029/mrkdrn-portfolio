@@ -26,30 +26,36 @@ function ProfilePhoto() {
   const badgeRight = enter(HERO_START + 750, 'pop-in')
 
   return (
-    <figure className="relative mx-auto w-52 sm:w-60 md:w-full md:max-w-[19rem]">
-      {/* Soft glow behind the photo */}
+    <figure className="group/photo relative mx-auto w-52 sm:w-60 md:w-full md:max-w-[19rem]">
+      {/* Soft glow behind the photo; brightens and spreads on hover */}
       <div
         aria-hidden
-        className="absolute -inset-6 -z-10 rounded-[3rem] bg-[radial-gradient(closest-side,var(--color-chip-hover),transparent)] opacity-80 blur-2xl"
+        className="absolute -inset-6 -z-10 rounded-[3rem] bg-[radial-gradient(closest-side,var(--color-chip-hover),transparent)] opacity-80 blur-2xl transition-[opacity,scale] duration-700 group-hover/photo:scale-110 group-hover/photo:opacity-100"
       />
-      {/* Offset outline frame */}
+      {/* Offset outline frame: stays put while the photo lifts, for a sense of depth */}
       <div aria-hidden className="absolute inset-0 translate-x-3 translate-y-3 rounded-[2rem] border border-line" />
 
-      {/* The original is a wide full-body shot: zoom in on head and shoulders */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl ring-1 ring-black/5 dark:shadow-black/40 dark:ring-white/10">
-        <img
-          src={profile}
-          alt={`Portrait of ${site.name}`}
-          width={960}
-          height={1280}
-          className="h-full w-full origin-[44%_40%] scale-[1.9] object-cover"
-        />
+      {/* Hover: the photo lifts, tilts slightly and grows... */}
+      <div className="relative transition-[translate,rotate,scale] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/photo:-translate-y-2 group-hover/photo:-rotate-2 group-hover/photo:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover/photo:transform-none">
+        {/* ...then keeps floating gently while hovered */}
+        <div className="motion-safe:group-hover/photo:animate-float">
+          {/* The original is a wide full-body shot: zoom in on head and shoulders */}
+          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl ring-1 ring-black/5 transition-shadow duration-700 group-hover/photo:shadow-2xl dark:shadow-black/40 dark:ring-white/10">
+            <img
+              src={profile}
+              alt={`Portrait of ${site.name}`}
+              width={960}
+              height={1280}
+              className="h-full w-full origin-[44%_40%] scale-[1.9] object-cover"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Floating detail chips */}
       <figcaption
         style={badgeLeft.style}
-        className={`absolute -bottom-4 -left-4 flex items-center gap-2 rounded-full border border-line bg-card/90 px-3 py-1.5 text-xs font-medium text-fg shadow-lg backdrop-blur sm:-left-6 dark:shadow-black/40 ${badgeLeft.className}`}
+        className={`absolute -bottom-4 -left-4 flex items-center gap-2 rounded-full border border-line bg-card/90 px-3 py-1.5 text-xs font-medium text-fg shadow-lg backdrop-blur transition-[translate] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/photo:-translate-x-2 group-hover/photo:translate-y-1 sm:-left-6 dark:shadow-black/40 ${badgeLeft.className}`}
       >
         <svg className="h-3.5 w-3.5 text-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z" />
@@ -59,7 +65,7 @@ function ProfilePhoto() {
       </figcaption>
       <div
         style={badgeRight.style}
-        className={`absolute -top-3 -right-3 rounded-2xl border border-line bg-card/90 px-3 py-2 text-center shadow-lg backdrop-blur sm:-right-5 dark:shadow-black/40 ${badgeRight.className}`}
+        className={`absolute -top-3 -right-3 rounded-2xl border border-line bg-card/90 px-3 py-2 text-center shadow-lg backdrop-blur transition-[translate] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/photo:translate-x-2 group-hover/photo:-translate-y-2 sm:-right-5 dark:shadow-black/40 ${badgeRight.className}`}
       >
         <p className="text-lg leading-none font-semibold text-fg">{site.yearsOfExperience}</p>
         <p className="mt-0.5 text-[10px] tracking-wide text-muted uppercase">Years</p>

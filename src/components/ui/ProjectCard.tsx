@@ -14,7 +14,8 @@ const statusStyles: Record<ProjectStatus, string> = {
   Completed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300',
 }
 
-const linkClass = 'relative z-10 text-fg underline-offset-4 hover:underline'
+// Sits above the whole-card link (z-20) so it stays separately clickable
+const linkClass = 'relative z-30 text-fg underline-offset-4 hover:underline'
 
 /**
  * One project per row: a framed screenshot on the left, details on the right.
@@ -38,46 +39,65 @@ function ProjectCard({ project, index }: ProjectCardProps) {
     <article
       ref={ref}
       className={`group relative grid overflow-hidden rounded-2xl border border-line bg-card shadow-sm transition-[box-shadow,border-color] duration-300 md:grid-cols-[1.15fr_1fr] ${
-        liveUrl ? 'hover:border-subtle hover:shadow-xl focus-within:ring-2 focus-within:ring-fg/20 dark:hover:shadow-black/50' : ''
+        liveUrl
+          ? 'cursor-pointer hover:border-subtle hover:shadow-xl has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-fg/30 dark:hover:shadow-black/50'
+          : ''
       } ${inView ? 'motion-safe:animate-slide-in-left' : 'motion-safe:opacity-0'}`}
     >
+      {/* Whole-card link: a direct child of the card so it always covers all of it, layered above the content */}
+      {liveUrl && (
+        <a
+          href={liveUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Open ${project.title} in a new tab`}
+          className="absolute inset-0 z-20 rounded-2xl outline-none"
+        />
+      )}
+
       {/* Screenshot in a browser frame */}
       <div className="relative border-b border-line-soft bg-surface p-4 sm:p-6 md:border-r md:border-b-0 lg:p-8">
-        <div
-          style={shot.style}
-          className={`overflow-hidden rounded-lg border border-line bg-card shadow-lg dark:shadow-black/40 ${shot.className}`}
-        >
-          <div className="flex items-center gap-1.5 border-b border-line-soft bg-chip/60 px-3 py-2" aria-hidden>
-            <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-            <span className="ml-2 truncate rounded bg-card px-2 py-0.5 text-[10px] text-subtle">
-              {project.title.toLowerCase()}.app
-            </span>
-          </div>
-          <div className="aspect-[16/10] overflow-hidden bg-chip">
-            {screenshot ? (
-              <>
-                <img
-                  src={screenshot.light}
-                  alt={`Screenshot of ${project.title}`}
-                  loading="lazy"
-                  width={1280}
-                  height={800}
-                  className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04] dark:hidden"
-                />
-                <img
-                  src={screenshot.dark}
-                  alt={`Screenshot of ${project.title}`}
-                  loading="lazy"
-                  width={1280}
-                  height={800}
-                  className="hidden h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04] dark:block"
-                />
-              </>
-            ) : (
-              <div className="grid h-full place-items-center text-sm text-subtle">Preview coming soon</div>
-            )}
+        {/* Hover: the screenshot lifts, tilts slightly and grows... */}
+        <div className="transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-2 group-hover:-rotate-[1.5deg] group-hover:scale-[1.05] motion-reduce:transition-none motion-reduce:group-hover:transform-none">
+          {/* ...then keeps floating gently while hovered */}
+          <div className="motion-safe:group-hover:animate-float">
+            <div
+              style={shot.style}
+              className={`overflow-hidden rounded-lg border border-line bg-card shadow-lg transition-shadow duration-700 group-hover:shadow-2xl dark:shadow-black/40 ${shot.className}`}
+            >
+              <div className="flex items-center gap-1.5 border-b border-line-soft bg-chip/60 px-3 py-2" aria-hidden>
+                <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+                <span className="ml-2 truncate rounded bg-card px-2 py-0.5 text-[10px] text-subtle">
+                  {project.title.toLowerCase()}.app
+                </span>
+              </div>
+              <div className="aspect-[16/10] overflow-hidden bg-chip">
+                {screenshot ? (
+                  <>
+                    <img
+                      src={screenshot.light}
+                      alt={`Screenshot of ${project.title}`}
+                      loading="lazy"
+                      width={1280}
+                      height={800}
+                      className="h-full w-full object-cover object-top dark:hidden"
+                    />
+                    <img
+                      src={screenshot.dark}
+                      alt={`Screenshot of ${project.title}`}
+                      loading="lazy"
+                      width={1280}
+                      height={800}
+                      className="hidden h-full w-full object-cover object-top dark:block"
+                    />
+                  </>
+                ) : (
+                  <div className="grid h-full place-items-center text-sm text-subtle">Preview coming soon</div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -92,19 +112,7 @@ function ProjectCard({ project, index }: ProjectCardProps) {
         </div>
 
         <h3 style={step(1).style} className={`mt-3 text-2xl font-semibold tracking-tight text-fg ${step(1).className}`}>
-          {liveUrl ? (
-            // The link's ::after covers the whole card, making the card clickable
-            <a
-              href={liveUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="outline-none after:absolute after:inset-0 after:rounded-2xl after:content-['']"
-            >
-              {project.title}
-            </a>
-          ) : (
-            project.title
-          )}
+          {project.title}
         </h3>
 
         <p style={step(2).style} className={`mt-2 text-sm leading-relaxed text-body ${step(2).className}`}>
