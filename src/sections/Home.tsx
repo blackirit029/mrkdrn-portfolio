@@ -1,4 +1,5 @@
 import profile from '../assets/profile.jpg'
+import InteractiveGrid from '../components/ui/InteractiveGrid'
 import Section from '../components/ui/Section'
 import SkillList from '../components/ui/SkillList'
 import { site } from '../data/site'
@@ -78,7 +79,7 @@ function Home() {
   const photo = enter(HERO_START + 100, 'scale-in')
 
   return (
-    <Section id="home" revealOnLoad selfAnimated className="pt-12 pb-16 sm:pt-16 sm:pb-24">
+    <Section id="home" revealOnLoad selfAnimated background={<InteractiveGrid />} className="pt-12 pb-16 sm:pt-16 sm:pb-24">
       <div className="grid min-h-[calc(70svh-4rem)] items-center gap-12 md:grid-cols-[1.35fr_1fr] md:gap-10">
         <div className="order-last md:order-first">
           <p style={enter(HERO_START).style} className={`text-sm font-medium text-muted ${enter(HERO_START).className}`}>

@@ -9,16 +9,19 @@ interface SectionProps {
   revealOnLoad?: boolean
   /** The children run their own (staggered) entrance, so the section itself doesn't fade */
   selfAnimated?: boolean
+  /** Full-width layer drawn behind the content (e.g. an animated background) */
+  background?: ReactNode
 }
 
 /** A page section that is a scroll target and fades in when it enters the viewport. */
-function Section({ id, children, className = '', revealOnLoad = false, selfAnimated = false }: SectionProps) {
+function Section({ id, children, className = '', revealOnLoad = false, selfAnimated = false, background }: SectionProps) {
   const [ref, scrolledIntoView] = useInView<HTMLDivElement>()
   const inView = revealOnLoad || scrolledIntoView
   const animation = selfAnimated ? '' : inView ? 'motion-safe:animate-fade-in' : 'motion-safe:opacity-0'
 
   return (
-    <section id={id} className={`scroll-mt-16 ${className}`}>
+    <section id={id} className={`scroll-mt-16 ${background ? 'relative isolate overflow-hidden' : ''} ${className}`}>
+      {background}
       <div ref={ref} className={`mx-auto max-w-4xl px-5 sm:px-6 ${animation}`}>
         {children}
       </div>
