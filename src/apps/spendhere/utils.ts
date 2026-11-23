@@ -81,6 +81,23 @@ export const MONTHS_AHEAD = 3
 export const lastPlannableMonth = (): Month => shiftMonth(currentMonth(), MONTHS_AHEAD)
 export const isFutureMonth = (month: Month) => month > currentMonth()
 
+/** Latest date a transaction can have: the last day of the furthest plannable month */
+export const lastPlannableDate = () => {
+  const month = lastPlannableMonth()
+  return `${month}-${pad(daysInMonth(month))}`
+}
+
+/**
+ * Sensible default date for adding to `month`: today in the current month,
+ * the 1st of an upcoming month, the last day of a past month.
+ */
+export function defaultDateFor(month: Month) {
+  const current = currentMonth()
+  if (month === current) return todayKey()
+  if (month > current) return `${month}-01`
+  return `${month}-${pad(daysInMonth(month))}`
+}
+
 export type BudgetStatus = 'none' | 'good' | 'warning' | 'over'
 
 /** No limit set at 0; on track below 80%, near limit up to 100%, then over */

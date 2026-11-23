@@ -3,7 +3,7 @@ import { categories, categoryById } from '../data'
 import type { CategoryId, Month, Transaction } from '../types'
 import ConfirmDialog from '../../../components/ui/ConfirmDialog'
 import { enter } from '../enter'
-import { byNewest, createId, dayLabel, formatMoney, inMonth, monthName, shortDate, sum, todayKey } from '../utils'
+import { byNewest, createId, dayLabel, defaultDateFor, formatMoney, inMonth, lastPlannableDate, monthName, shortDate, sum } from '../utils'
 import { SearchIcon } from './Icons'
 import TransactionRow from './TransactionRow'
 import ViewHeader from './ViewHeader'
@@ -25,7 +25,11 @@ function TransactionsView({ month, onMonthChange, transactions, onAdd, onUpdate,
   const [amount, setAmount] = useState('')
   const [categoryId, setCategoryId] = useState<CategoryId>('food')
   const [note, setNote] = useState('')
-  const [date, setDate] = useState(todayKey)
+  // The picked date belongs to the month being viewed; switching months falls back to a
+  // default date inside the new month, so an expense lands in the month you're looking at
+  const [picked, setPicked] = useState<{ month: Month; value: string } | null>(null)
+  const date = picked?.month === month ? picked.value : defaultDateFor(month)
+  const setDate = (value: string) => setPicked({ month, value })
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<CategoryId | 'all'>('all')
 
@@ -97,7 +101,7 @@ function TransactionsView({ month, onMonthChange, transactions, onAdd, onUpdate,
           </label>
           <label className="block">
             <span className="mb-1 block text-xs text-muted">Date</span>
-            <input type="date" required value={date} max={todayKey()} onChange={(e) => setDate(e.target.value)} className={fieldClass} />
+            <input type="date" required value={date} max={lastPlannableDate()} onChange={(e) => setDate(e.target.value)} className={fieldClass} />
           </label>
           <div className="flex items-end">
             <button

@@ -1,7 +1,7 @@
 import { useState, type FormEvent, type KeyboardEvent } from 'react'
 import { categories, categoryById } from '../data'
 import type { CategoryId, Transaction } from '../types'
-import { formatMoney, todayKey } from '../utils'
+import { formatMoney, lastPlannableDate } from '../utils'
 import { PencilIcon, TrashIcon } from './Icons'
 
 type TransactionChanges = Pick<Transaction, 'amount' | 'categoryId' | 'note' | 'date'>
@@ -103,7 +103,7 @@ function TransactionRow({ transaction, subtitle, onUpdate, onRequestDelete }: Tr
             </label>
             <label className="block">
               <span className="sr-only">Date</span>
-              <input type="date" required value={date} max={todayKey()} onChange={(e) => setDate(e.target.value)} className={fieldClass} />
+              <input type="date" required value={date} max={lastPlannableDate()} onChange={(e) => setDate(e.target.value)} className={fieldClass} />
             </label>
           </div>
           <div className="flex items-center justify-between gap-3">
